@@ -40,13 +40,13 @@
         h1 {
             color: #2c3e50;
             margin-bottom: 15px;
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
         }
         
         .subtitle {
             color: #7f8c8d;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             margin-bottom: 10px;
         }
         
@@ -82,7 +82,7 @@
             padding: 16px 35px;
             border-radius: 50px;
             cursor: pointer;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 600;
             transition: transform 0.3s, box-shadow 0.3s;
             margin: 20px 0;
@@ -96,6 +96,11 @@
         
         .test-btn:active {
             transform: translateY(1px);
+        }
+        
+        .test-btn:disabled {
+            background: linear-gradient(to right, #95a5a6, #7f8c8d);
+            cursor: not-allowed;
         }
         
         .result-box {
@@ -119,7 +124,7 @@
         }
         
         .mtu-value {
-            font-size: 3rem;
+            font-size: 2.8rem;
             font-weight: bold;
             color: #e74c3c;
             margin: 15px 0;
@@ -143,7 +148,7 @@
         }
         
         .status {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             margin: 15px 0;
             color: #2c3e50;
         }
@@ -171,7 +176,7 @@
             text-align: center;
             margin-top: 30px;
             color: #ecf0f1;
-            font-size: 1rem;
+            font-size: 0.9rem;
         }
         
         @media (max-width: 768px) {
@@ -181,7 +186,7 @@
             }
             
             h1 {
-                font-size: 2rem;
+                font-size: 1.8rem;
             }
             
             .subtitle {
@@ -189,7 +194,12 @@
             }
             
             .mtu-value {
-                font-size: 2.5rem;
+                font-size: 2.2rem;
+            }
+            
+            .test-btn {
+                padding: 14px 25px;
+                font-size: 1rem;
             }
         }
     </style>
@@ -270,14 +280,17 @@
             updateTime();
             
             // محاكاة اكتشاف نوع الاتصال
-            const connectionTypes = ['Wi-Fi', 'Ethernet', '4G', 'DSL', 'Fiber'];
-            connectionType.textContent = connectionTypes[Math.floor(Math.random() * connectionTypes.length)];
-            connectionStatus.textContent = 'متصل';
+            function detectConnectionType() {
+                const connectionTypes = ['Wi-Fi', 'Ethernet', '4G', 'DSL', 'Fiber'];
+                connectionType.textContent = connectionTypes[Math.floor(Math.random() * connectionTypes.length)];
+                connectionStatus.textContent = 'متصل';
+            }
             
             // بدء الاختبار
             testBtn.addEventListener('click', function() {
                 testBtn.disabled = true;
                 testStatus.textContent = 'جاري اختبار اتصالك...';
+                detectConnectionType();
                 
                 // محاكاة التقدم
                 let progress = 0;
@@ -327,13 +340,18 @@
                 resultBox.style.display = 'block';
                 
                 // تمرير إلى النتيجة
-                resultBox.scrollIntoView({ behavior: 'smooth' });
+                setTimeout(function() {
+                    resultBox.scrollIntoView({ behavior: 'smooth' });
+                }, 300);
                 
                 // إعادة تعيين الزر بعد 3 ثوان
                 setTimeout(function() {
                     testBtn.disabled = false;
                 }, 3000);
             }
+            
+            // الكشف الأولي عن نوع الاتصال
+            detectConnectionType();
         });
     </script>
 </body>
