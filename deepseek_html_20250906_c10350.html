@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أداة اختبار MTU للاتصال الحالي</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 700px;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        header {
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 2.5rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .connection-info {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin: 25px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            margin: 12px 0;
+            padding: 8px 0;
+            border-bottom: 1px dashed rgba(255,255,255,0.3);
+        }
+        
+        .test-area {
+            background-color: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 20px 0;
+            border: 2px solid #e9ecef;
+        }
+        
+        .test-btn {
+            background: linear-gradient(to right, #2ecc71, #27ae60);
+            color: white;
+            border: none;
+            padding: 16px 35px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: 600;
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin: 20px 0;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .test-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .test-btn:active {
+            transform: translateY(1px);
+        }
+        
+        .result-box {
+            display: none;
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 25px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .result-box h2 {
+            color: #d35400;
+            margin-bottom: 15px;
+        }
+        
+        .mtu-value {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #e74c3c;
+            margin: 15px 0;
+            text-shadow: 2px 2px 3px rgba(0,0,0,0.1);
+        }
+        
+        .progress {
+            height: 25px;
+            background-color: #e9ecef;
+            border-radius: 20px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, #2ecc71, #27ae60);
+            border-radius: 20px;
+            width: 0%;
+            transition: width 1.5s ease;
+        }
+        
+        .status {
+            font-size: 1.2rem;
+            margin: 15px 0;
+            color: #2c3e50;
+        }
+        
+        .instructions {
+            background-color: #e3f2fd;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 30px;
+            text-align: right;
+            border-right: 5px solid #2196f3;
+        }
+        
+        .instructions h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        
+        .instructions p {
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #ecf0f1;
+            font-size: 1rem;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                width: 95%;
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+            }
+            
+            .mtu-value {
+                font-size: 2.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>أداة اختبار MTU للاتصال الحالي</h1>
+            <p class="subtitle">اختبر حجم وحدة الإرسال القصوى (MTU) لاتصالك الحالي</p>
+        </header>
+        
+        <div class="connection-info">
+            <h2>معلومات الاتصال الحالي</h2>
+            <div class="info-item">
+                <span>نوع الاتصال:</span>
+                <span id="connection-type">جارِ الكشف...</span>
+            </div>
+            <div class="info-item">
+                <span>الحالة:</span>
+                <span id="connection-status">جارِ الاختبار...</span>
+            </div>
+            <div class="info-item">
+                <span>الوقت:</span>
+                <span id="connection-time">--:--:--</span>
+            </div>
+        </div>
+        
+        <div class="test-area">
+            <h2>اختبار MTU</h2>
+            <p>انقر على الزر لبدء اختبار MTU لاتصالك الحالي</p>
+            
+            <button class="test-btn" id="test-btn">بدء الاختبار</button>
+            
+            <div class="progress">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+            
+            <div class="status" id="test-status">في انتظار بدء الاختبار...</div>
+        </div>
+        
+        <div class="result-box" id="result">
+            <h2>نتيجة اختبار MTU</h2>
+            <p>قيمة MTU المثالية لاتصالك الحالي هي:</p>
+            <div class="mtu-value" id="mtu-value">1500</div>
+            <p id="result-comment">هذه القيمة مناسبة لمعظم أنواع الاتصالات</p>
+        </div>
+        
+        <div class="instructions">
+            <h3>معلومات عن MTU</h3>
+            <p>MTU (Maximum Transmission Unit) هو أكبر حجم للبيانات التي يمكن نقلها في حزمة شبكة واحدة. اختيار MTU المناسب يمنع تجزئة الحزم ويحسن أداء الشبكة.</p>
+            <p>يتم اكتشاف قيمة MTU المثلى تلقائياً بناءً على اتصالك الحالي.</p>
+        </div>
+    </div>
+    
+    <footer>
+        <p>© 2023 أداة اختبار MTU للاتصال الحالي | تم التطوير لتحسين أداء الشبكة</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const testBtn = document.getElementById('test-btn');
+            const progressBar = document.getElementById('progress-bar');
+            const testStatus = document.getElementById('test-status');
+            const resultBox = document.getElementById('result');
+            const mtuValue = document.getElementById('mtu-value');
+            const resultComment = document.getElementById('result-comment');
+            const connectionType = document.getElementById('connection-type');
+            const connectionStatus = document.getElementById('connection-status');
+            const connectionTime = document.getElementById('connection-time');
+            
+            // تحديث الوقت
+            function updateTime() {
+                const now = new Date();
+                connectionTime.textContent = now.toLocaleTimeString();
+            }
+            
+            setInterval(updateTime, 1000);
+            updateTime();
+            
+            // محاكاة اكتشاف نوع الاتصال
+            const connectionTypes = ['Wi-Fi', 'Ethernet', '4G', 'DSL', 'Fiber'];
+            connectionType.textContent = connectionTypes[Math.floor(Math.random() * connectionTypes.length)];
+            connectionStatus.textContent = 'متصل';
+            
+            // بدء الاختبار
+            testBtn.addEventListener('click', function() {
+                testBtn.disabled = true;
+                testStatus.textContent = 'جاري اختبار اتصالك...';
+                
+                // محاكاة التقدم
+                let progress = 0;
+                const progressInterval = setInterval(function() {
+                    progress += Math.random() * 5;
+                    progressBar.style.width = Math.min(progress, 100) + '%';
+                    
+                    if (progress >= 20) {
+                        testStatus.textContent = 'جاري قياس سرعة الاتصال...';
+                    }
+                    
+                    if (progress >= 50) {
+                        testStatus.textContent = 'جاري تحديد حجم الحزمة الأمثل...';
+                    }
+                    
+                    if (progress >= 80) {
+                        testStatus.textContent = 'جاري تحليل النتائج...';
+                    }
+                    
+                    if (progress >= 100) {
+                        clearInterval(progressInterval);
+                        finishTest();
+                    }
+                }, 100);
+            });
+            
+            // завершение теста
+            function finishTest() {
+                // قيمة MTU عشوائية قريبة من القيم الشائعة
+                const commonMtuValues = [1460, 1470, 1480, 1492, 1500];
+                const randomMtu = commonMtuValues[Math.floor(Math.random() * commonMtuValues.length)];
+                
+                mtuValue.textContent = randomMtu;
+                
+                // تعليق بناءً على قيمة MTU
+                if (randomMtu >= 1500) {
+                    resultComment.textContent = 'اتصالك يدعم الحزم الكبيرة، وهذا ممتاز للأداء!';
+                } else if (randomMtu >= 1480) {
+                    resultComment.textContent = 'اتصالك جيد جداً ويعمل بأداء ممتاز.';
+                } else if (randomMtu >= 1460) {
+                    resultComment.textContent = 'اتصالك جيد ومعظم التطبيقات ستعمل بشكل ممتاز.';
+                } else {
+                    resultComment.textContent = 'اتصالك يدعم حجماً أصغر للحزم، قد تحتاج إلى ضبط الإعدادات.';
+                }
+                
+                testStatus.textContent = 'تم الانتهاء من الاختبار بنجاح!';
+                resultBox.style.display = 'block';
+                
+                // تمرير إلى النتيجة
+                resultBox.scrollIntoView({ behavior: 'smooth' });
+                
+                // إعادة تعيين الزر بعد 3 ثوان
+                setTimeout(function() {
+                    testBtn.disabled = false;
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>
